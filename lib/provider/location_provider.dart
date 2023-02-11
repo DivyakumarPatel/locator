@@ -1,3 +1,7 @@
+// ignore_for_file: no_leading_underscores_for_local_identifiers
+
+import 'dart:developer';
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -6,7 +10,7 @@ import 'package:location/location.dart';
 class LocationProvider with ChangeNotifier {
   late Location _location;
   Location get location => _location;
-  late LatLng _locationPosition;
+  late LatLng _locationPosition = LatLng(-1.23445, 36.828838);
   LatLng get locationPosition => _locationPosition;
 
   bool locationServiceActive = true;
@@ -44,7 +48,8 @@ class LocationProvider with ChangeNotifier {
       _locationPosition =
           LatLng(currentLocation.latitude!, currentLocation.latitude!);
 
-      print(_locationPosition);
+      log(_locationPosition.latitude.toString());
+      log(_locationPosition.longitude.toString());
       notifyListeners();
     });
   }

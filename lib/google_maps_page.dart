@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import "package:flutter_locator/provider/location_provider.dart";
 import "package:flutter/material.dart";
 import "package:google_maps_flutter/google_maps_flutter.dart";
@@ -11,50 +13,59 @@ class GoogleMapPage extends StatefulWidget {
 }
 
 class _GoogleMapPageState extends State<GoogleMapPage> {
+  late GoogleMapController controller;
   get create => null;
 
   @override
   void initState() {
     super.initState();
+    context.read<LocationProvider>().getUserLocation();
   }
 
   @override
   Widget build(BuildContext context) {
-    return
-    MultiProvider(providers: [
-      create: (_) => LocationProvider(),
-      StreamProvider.value(create:(context) => context.read<LocationProvider>().location value: , initialData: null    ],
-    child:  Scaffold(
+    return Scaffold(
       appBar: AppBar(
-          title: Text("LocatorDO"),
-          backgroundColor: Colors.redAccent,
-        ),
-        body: googleMapUI()) ,
-    )
-    ;
-  }
-
-  Widget googleMapUI() {
-    return Provider>(builder: (consumerContext, model, child) {
-      if (model.locationPosition != null) {
-        return Column(children: [
-          Expanded(
-            child: GoogleMap(
-              mapType: MapType.normal,
-              initialCameraPosition:
-                  CameraPosition(target: model.locationPosition, zoom: 12),
-              myLocationEnabled: true,
-              myLocationButtonEnabled: true,
-              onMapCreated: (GoogleMapController controller) {},
-            ),
-          )
-        ]);
-      }
-      return Container(
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    });
+        title: Text("Locator"),
+        backgroundColor: Colors.redAccent,
+      ),
+      body: Column(children: [
+        Expanded(
+          child: GoogleMap(
+            mapType: MapType.normal,
+            initialCameraPosition: CameraPosition(
+                target: LatLng(
+                    //-2.2323323, 36.2323232323
+                    context.read<LocationProvider>().locationPosition.latitude,
+                    context
+                        .read<LocationProvider>()
+                        .locationPosition
+                        .longitude),
+                zoom: 12),
+            markers: {
+              Marker(
+                  markerId: const MarkerId("marker1"),
+                  position: LatLng(
+                      context
+                          .read<LocationProvider>()
+                          .locationPosition
+                          .latitude,
+                      context
+                          .read<LocationProvider>()
+                          .locationPosition
+                          .longitude),
+                  draggable: true,
+                  onDragEnd: (value) {},
+                  icon: BitmapDescriptor.defaultMarker),
+            },
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+            onMapCreated: (GoogleMapController controller) {
+              controller = controller;
+            },
+          ),
+        )
+      ]),
+    );
   }
 }

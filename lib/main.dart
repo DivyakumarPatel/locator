@@ -4,7 +4,10 @@ import 'package:provider/provider.dart';
 import 'google_maps_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  
+  runApp(MultiProvider(providers: [
+     ChangeNotifierProvider(create: (_) => LocationProvider()),
+  ], child: MyApp(),) );
 }
 
 class MyApp extends StatelessWidget {
