@@ -8,9 +8,16 @@ import 'package:flutter/foundation.dart';
 import 'package:location/location.dart';
 
 class LocationProvider with ChangeNotifier {
+  // late BitmapDescriptor _pinLocationIcon;
+  // BitmapDescriptor get pinLocationIcon => _pinLocationIcon;
+  // late Map<MarkerId, Marker> _markers;
+  // Map<MarkerId, Marker> get markers => _markers;
+
+  // final MarkerId markerId = MarkerId("1");
+
   late Location _location;
   Location get location => _location;
-  late LatLng _locationPosition = LatLng(-1.23445, 36.828838);
+  late LatLng _locationPosition = LatLng(42.267450, -83.038012);
   LatLng get locationPosition => _locationPosition;
 
   bool locationServiceActive = true;
@@ -50,6 +57,7 @@ class LocationProvider with ChangeNotifier {
 
       log(_locationPosition.latitude.toString());
       log(_locationPosition.longitude.toString());
+
       notifyListeners();
     });
   }

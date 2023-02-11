@@ -35,13 +35,12 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
             mapType: MapType.normal,
             initialCameraPosition: CameraPosition(
                 target: LatLng(
-                    //-2.2323323, 36.2323232323
                     context.read<LocationProvider>().locationPosition.latitude,
                     context
                         .read<LocationProvider>()
                         .locationPosition
                         .longitude),
-                zoom: 12),
+                zoom: 18),
             markers: {
               Marker(
                   markerId: const MarkerId("marker1"),
