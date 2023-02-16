@@ -1,4 +1,4 @@
-// ignore_for_file: no_leading_underscores_for_local_identifiers
+// ignore_for_file: no_leading_underscores_for_local_identifiers, prefer_const_constructors
 
 import 'dart:developer';
 
@@ -17,13 +17,13 @@ class LocationProvider with ChangeNotifier {
 
   late Location _location;
   Location get location => _location;
-  late LatLng _locationPosition = LatLng(42.267450, -83.038012);
+  LatLng _locationPosition = LatLng(0.00, 0.00);
   LatLng get locationPosition => _locationPosition;
 
   bool locationServiceActive = true;
 
   LocationProvider() {
-    _location = new Location();
+    _location = Location();
   }
 
   initialization() async {
@@ -53,7 +53,7 @@ class LocationProvider with ChangeNotifier {
 
     location.onLocationChanged.listen((LocationData currentLocation) {
       _locationPosition =
-          LatLng(currentLocation.latitude!, currentLocation.latitude!);
+          LatLng(currentLocation.latitude!, currentLocation.longitude!);
 
       log(_locationPosition.latitude.toString());
       log(_locationPosition.longitude.toString());

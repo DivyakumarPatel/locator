@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_locator/provider/location_provider.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'google_maps_page.dart';
 
-void main() {
+void main() async{
+   WidgetsFlutterBinding.ensureInitialized();
+  HydratedBloc.storage = await HydratedStorage.build(
+    storageDirectory: await getApplicationDocumentsDirectory(),
+  );
   
-  runApp(MultiProvider(providers: [
-     ChangeNotifierProvider(create: (_) => LocationProvider()),
-  ], child: MyApp(),) );
+  runApp(MyApp() );
 }
 
 class MyApp extends StatelessWidget {
