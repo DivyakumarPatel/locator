@@ -42,8 +42,6 @@ LocationState({this.latitude = "", this.longitude = "", this.status = LocationSt
     int index = map['status'];
 
     return LocationState(
-      latitude: map['latitude'],
-      longitude: map['longitude'],
       status: LocationStatus.values[index],
     );
   }

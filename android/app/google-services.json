@@ -1,0 +1,84 @@
+{
+  "project_info": {
+    "project_number": "356908479576",
+    "project_id": "flutter-notifications-a462c",
+    "storage_bucket": "flutter-notifications-a462c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:356908479576:android:6fdacca597c8ab884b462d",
+        "android_client_info": {
+          "package_name": "com.example.flutter_locator"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "356908479576-1qf1r8cijd4u3l491hacau5bs5kgeam8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.flutter_locator",
+            "certificate_hash": "f52dcd4aed8d4851dde3baa60d2e46bf58a3944b"
+          }
+        },
+        {
+          "client_id": "356908479576-geopauth7q3l7neigdv0mmda9qdsnhbl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCG52qsTkWTj-TD4b_rPIcz51TAPX6TP8s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "356908479576-geopauth7q3l7neigdv0mmda9qdsnhbl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:356908479576:android:308d3a55190c571f4b462d",
+        "android_client_info": {
+          "package_name": "com.example.flutter_notifications"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "356908479576-ejl3eevgol1ljjs9c3afnc15lkd5u5f9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.flutter_notifications",
+            "certificate_hash": "f52dcd4aed8d4851dde3baa60d2e46bf58a3944b"
+          }
+        },
+        {
+          "client_id": "356908479576-geopauth7q3l7neigdv0mmda9qdsnhbl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCG52qsTkWTj-TD4b_rPIcz51TAPX6TP8s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "356908479576-geopauth7q3l7neigdv0mmda9qdsnhbl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
