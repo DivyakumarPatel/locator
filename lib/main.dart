@@ -78,7 +78,7 @@ class _MyAppState extends State<MyApp> {
               channel.name,
               channelDescription: channel.description,
               color: Colors.blue,
-              icon: "@mipmap/ic_launcher",
+              icon: "logo",
             ),
           ),
         );
@@ -101,7 +101,7 @@ class _MyAppState extends State<MyApp> {
               channel.name,
               channelDescription: channel.description,
               color: Colors.blue,
-              icon: "@mipmap/ic_launcher",
+              icon: "logo",
             ),
           ),
         );

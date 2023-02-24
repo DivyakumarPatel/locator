@@ -14,41 +14,45 @@ part 'location_state.dart';
 
 class LocationBloc extends HydratedBloc<LocationEvent, LocationState> {
   LocationBloc() : super( LocationState()) {on<GetLocation>(_onGetLocation);
+
   }
 
-
-
-
   void _onGetLocation(GetLocation event, Emitter<LocationState> emit) async {
+
+
     if (state.status == LocationStatus.initial) {
-     
       emit(state.copyWith(status: LocationStatus.loading));
     }
 
     try {
-      
+
        LocationPermission permission = await Geolocator.checkPermission();
     log(permission.name);
 
     if (permission.name == "denied") {
       LocationPermission permissionRequest =
           await Geolocator.requestPermission();
-          log(permissionRequest.name); 
+          log(permissionRequest.name);
       if (permissionRequest.name == "denied") {
         emit(state.copyWith(status: LocationStatus.error));
         return;
       }
-      
+
     }
+
+
+
+
+
 
     var position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     log(position.latitude.toString());
 
-      
+
       emit(state.copyWith(latitude:position.latitude.toString() , longitude: position.longitude.toString(),  status: LocationStatus.loaded));
     } catch (e) {
-    
+
       emit(state.copyWith(status: LocationStatus.error));
     }
   }

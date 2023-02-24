@@ -20,8 +20,8 @@ class AppFunctions{
 
   void showNotification(String notificationName, String notificationDescription) async {
     developer.log(" A new message on local notification");
-    String? token = await FirebaseMessaging.instance.getToken();
-    developer.log(token!);
+    // String? token = await FirebaseMessaging.instance.getToken();
+    // developer.log(token!);
     flutterLocalNotificationsPlugin.show(
       1,
       notificationName,
@@ -34,7 +34,7 @@ class AppFunctions{
           importance: Importance.high,
           color: Colors.blue,
           playSound: true,
-          icon: "@mipmap/ic_launcher",
+          icon: "logo",
         ),
       ),
     );
