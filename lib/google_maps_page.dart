@@ -43,21 +43,22 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
     createOrigincon();
   }
 
-  void fetchLocationPeriodically() {}
+  late double lat_origin;
+  late double long_origin;
+  late double geofenceRadius;
+  late double distance_from_origin;
+
+  bool notificationsent = false;
 
   @override
   Widget build(BuildContext context) {
-    
     late double lat_origin;
-    late double long_origin;
-    late double geofenceRadius;
-
-    bool notificationsent = false;
 
     return BlocProvider(
       create: (context) => LocationBloc()..add(GetLocation()),
       child: Scaffold(
         appBar: AppBar(
+          elevation: 0,
           title: Text("Locator"),
           centerTitle: true,
           backgroundColor: Colors.redAccent,
@@ -200,6 +201,12 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                   );
                 }
 
+                distance_from_origin = AppFunctions().calculateDistance(
+                    double.parse(state.latitude),
+                    double.parse(state.longitude),
+                    HydratedBloc.storage.read("lat_origin"),
+                    HydratedBloc.storage.read("long_origin"));
+
                 //check if origin has been set, if not, set it as the current location
                 if (HydratedBloc.storage.read("lat_origin") == null ||
                     HydratedBloc.storage.read("long_origin") == null ||
@@ -210,11 +217,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                   HydratedBloc.storage
                       .write("long_origin", double.parse(state.longitude));
                 } else {
-                  if ((AppFunctions().calculateDistance(
-                              double.parse(state.latitude),
-                              double.parse(state.longitude),
-                              HydratedBloc.storage.read("lat_origin"),
-                              HydratedBloc.storage.read("long_origin")) >
+                  if ((distance_from_origin >
                           HydratedBloc.storage.read("geofence_radius")) &&
                       notificationsent == false) {
                     AppFunctions().showNotification("Geofence breached!",
@@ -237,36 +240,61 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
   }
 
   Widget _googlemap(double latitude, double longitude) {
-    return GoogleMap(
-      mapType: MapType.normal,
-      initialCameraPosition:
-          CameraPosition(target: LatLng(latitude, longitude), zoom: 15),
-      markers: {
-        Marker(
-            markerId: const MarkerId("marker1"),
-            infoWindow: InfoWindow(title: "origin location"),
-            position: HydratedBloc.storage.read("lat_origin") != null
-                ? LatLng(HydratedBloc.storage.read("lat_origin"),
-                    HydratedBloc.storage.read("long_origin"))
-                : LatLng(latitude, longitude),
-
-            draggable: true,
-            onDragEnd: (value) {},
-            icon: BitmapDescriptor.defaultMarker),
-        Marker(
-            markerId: const MarkerId("marker2"),
-            infoWindow:
-                InfoWindow(snippet: "My Location", title: "my location"),
-            position: LatLng(latitude, longitude),
-            draggable: true,
-            onDragEnd: (value) {},
-            icon: BitmapDescriptor.defaultMarker),
-      },
-      myLocationEnabled: true,
-      myLocationButtonEnabled: true,
-      onMapCreated: (GoogleMapController controller) {
-        controller = controller;
-      },
+    return Stack(
+      children: [
+        GoogleMap(
+          mapType: MapType.normal,
+          initialCameraPosition:
+              CameraPosition(target: LatLng(latitude, longitude), zoom: 15),
+          markers: {
+            Marker(
+                markerId: const MarkerId("marker1"),
+                infoWindow: InfoWindow(title: "origin location"),
+                position: HydratedBloc.storage.read("lat_origin") != null
+                    ? LatLng(HydratedBloc.storage.read("lat_origin"),
+                        HydratedBloc.storage.read("long_origin"))
+                    : LatLng(latitude, longitude),
+                draggable: true,
+                onDragEnd: (value) {},
+                icon: BitmapDescriptor.defaultMarker),
+            Marker(
+                markerId: const MarkerId("marker2"),
+                infoWindow:
+                    InfoWindow(snippet: "My Location", title: "my location"),
+                position: LatLng(latitude, longitude),
+                draggable: true,
+                onDragEnd: (value) {},
+                icon: BitmapDescriptor.defaultMarker),
+          },
+          myLocationEnabled: true,
+          myLocationButtonEnabled: true,
+          onMapCreated: (GoogleMapController controller) {
+            controller = controller;
+          },
+        ),
+        Container(
+          height: 60,
+          width: MediaQuery.of(context).size.width,
+          color: Colors.redAccent,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Set radius: ${HydratedBloc.storage.read("geofence_radius").toString()} Kms",
+                  style: TextStyle(color: Colors.white),
+                ),
+                Text(
+                  "Your distance from the origin point: ${distance_from_origin.round().toString()} Kms",
+                  style: TextStyle(color: Colors.white),
+                )
+              ],
+            ),
+          ),
+        )
+      ],
     );
   }
 }
