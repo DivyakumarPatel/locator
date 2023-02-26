@@ -62,6 +62,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
           centerTitle: true,
           backgroundColor: Colors.redAccent,
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
             showDialog(
@@ -248,6 +249,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                 ? LatLng(HydratedBloc.storage.read("lat_origin"),
                     HydratedBloc.storage.read("long_origin"))
                 : LatLng(latitude, longitude),
+
             draggable: true,
             onDragEnd: (value) {},
             icon: BitmapDescriptor.defaultMarker),
@@ -260,6 +262,8 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
             onDragEnd: (value) {},
             icon: BitmapDescriptor.defaultMarker),
       },
+      myLocationEnabled: true,
+      myLocationButtonEnabled: true,
       onMapCreated: (GoogleMapController controller) {
         controller = controller;
       },
