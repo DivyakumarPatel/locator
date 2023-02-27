@@ -46,7 +46,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
   late double lat_origin;
   late double long_origin;
   late double geofenceRadius;
-  late double distance_from_origin;
+  double distance_from_origin = 10;
 
   bool notificationsent = false;
 
@@ -200,12 +200,8 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                     child: Text('Hmm, no Location! That\'s new. 😃'),
                   );
                 }
-
-                distance_from_origin = AppFunctions().calculateDistance(
-                    double.parse(state.latitude),
-                    double.parse(state.longitude),
-                    HydratedBloc.storage.read("lat_origin"),
-                    HydratedBloc.storage.read("long_origin"));
+              
+                
 
                 //check if origin has been set, if not, set it as the current location
                 if (HydratedBloc.storage.read("lat_origin") == null ||
@@ -216,7 +212,18 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                       .write("lat_origin", double.parse(state.latitude));
                   HydratedBloc.storage
                       .write("long_origin", double.parse(state.longitude));
+
+
+
+                  
+
+
                 } else {
+                  distance_from_origin = AppFunctions().calculateDistance(
+                    double.parse(state.latitude),
+                    double.parse(state.longitude),
+                    HydratedBloc.storage.read("lat_origin"),
+                    HydratedBloc.storage.read("long_origin"));
                   if ((distance_from_origin >
                           HydratedBloc.storage.read("geofence_radius")) &&
                       notificationsent == false) {
@@ -287,7 +294,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                   style: TextStyle(color: Colors.white),
                 ),
                 Text(
-                  "Your distance from the origin point: ${distance_from_origin.round().toString()} Kms",
+                  "Your distance from the origin point: ${distance_from_origin.round().toString()}  Kms",
                   style: TextStyle(color: Colors.white),
                 )
               ],
