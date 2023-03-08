@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:translator/translator.dart';
 
 import '../main.dart';
 
@@ -17,6 +18,8 @@ class AppFunctions{
     developer.log("Successfully calculated distance");
     return 12742 * asin(sqrt(a));
   }
+
+
 
   void showNotification(String notificationName, String notificationDescription) async {
     developer.log(" A new message on local notification");

@@ -48,6 +48,8 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
   late double geofenceRadius;
   double distance_from_origin = 10;
 
+
+
   bool notificationsent = false;
 
   @override
