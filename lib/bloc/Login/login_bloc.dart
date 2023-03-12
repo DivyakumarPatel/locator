@@ -41,6 +41,8 @@ class LoginBloc extends HydratedBloc<LoginEvent, LoginState> {
 
         User user = User .fromJson(jsonBody['user']);
 
+        log("=======================================> username${user.firstName}");
+
         //HydratedBloc.storage.write("token", token);
         HydratedBloc.storage.write("firstname", user.firstName);
         HydratedBloc.storage.write("email", user.email);
@@ -68,7 +70,7 @@ class LoginBloc extends HydratedBloc<LoginEvent, LoginState> {
           email: event.email,
           middleName: event.middleName,
           firstName: event.firstName,
-          lastName: event.lastName,
+
           phoneNumber: event.phoneNumber);
       var jsonBody = loginDetails.data;
       log(loginDetails.statusCode.toString());

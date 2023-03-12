@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 
-const String BASEURL = "http://192.168.176.15:8000";
+const String BASEURL = "http://192.168.176.246:8000";
 
 class AppConstants {
   void alertDialog(

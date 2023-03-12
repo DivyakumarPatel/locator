@@ -54,7 +54,7 @@ class _SignUpState extends State<SignUp> {
                     "Email", TextInputType.emailAddress, Icons.email_outlined),
                 textForm(
                     "First Name", TextInputType.text, Icons.person_outline),
-                textForm("Last Name", TextInputType.text, Icons.person_outline),
+
                 textForm(
                     "Middle Name", TextInputType.text, Icons.person_outline),
                 textForm("Phone Number", TextInputType.number, Icons.phone),
@@ -171,7 +171,6 @@ class _SignUpState extends State<SignUp> {
                                     email: email,
                                     middleName: middleName,
                                     firstName: firstName,
-                                    lastName: lastName,
                                     phoneNumber: phoneNumber));
                               }
                             },
@@ -217,7 +216,7 @@ class _SignUpState extends State<SignUp> {
               returnValue = !val!.contains("@") ? "Enter a valid Email" : null;
             } else if (label_text.contains("First Name")) {
               returnValue = val!.length < 2 ? "Enter a valid name" : null;
-            } else if (label_text.contains("Last Name")) {
+            } else if (label_text.contains("Middle Name")) {
               returnValue = val!.length < 2 ? "Enter a valid name" : null;
             } else if (label_text.contains("Phone Number")) {
               returnValue =

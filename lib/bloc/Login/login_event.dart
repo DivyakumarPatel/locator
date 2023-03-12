@@ -15,7 +15,7 @@ class Signup extends LoginEvent {
   final String email;
   final String middleName;
   final String firstName;
-  final String lastName;
+
   final String phoneNumber;
 
   const Signup(
@@ -23,7 +23,7 @@ class Signup extends LoginEvent {
       required this.email,
       required this.middleName,
       required this.firstName,
-      required this.lastName,
+
       required  this.phoneNumber});
 }
 

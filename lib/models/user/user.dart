@@ -22,9 +22,9 @@ class User {
     return User(
       id: map['id'] = map['id'] .toString() ,
       email: map['email'] = map['email'] .toString() ,
-      firstName: map['firstName'] = map['firstName'] .toString() ,
-      middleName: map['middleName'] = map['middleName'] .toString() ,
-      phoneNumber: map['phoneNumber'] = map['phoneNumber'] .toString() ,
+      firstName: map['firstName'] = map['first_name'] .toString() ,
+      middleName: map['middleName'] = map['middle_name'] .toString() ,
+      phoneNumber: map['phoneNumber'] = map['phone_number'] .toString() ,
     );
   }
 

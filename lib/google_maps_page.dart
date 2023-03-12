@@ -13,6 +13,7 @@ import "package:google_maps_flutter/google_maps_flutter.dart";
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import "package:provider/provider.dart";
 
+import 'Profile/profile.dart';
 import 'functions/app_functions.dart';
 import 'main.dart';
 
@@ -64,6 +65,18 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
           title: Text("Locator"),
           centerTitle: true,
           backgroundColor: Colors.redAccent,
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(left: 10, right: 10),
+              child: IconButton(onPressed: (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Profile()),
+                );
+              }, icon: Icon(Icons.person), iconSize: 30,),
+            )
+
+          ],
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
         floatingActionButton: FloatingActionButton.extended(

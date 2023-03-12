@@ -1,9 +1,10 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, unused_local_variable
 
 import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 
 import 'constants.dart';
@@ -17,8 +18,9 @@ class Api {
     required String email,
     required String password,
   }) async {
+    String? firebase_id =  await FirebaseMessaging.instance.getToken();
     const url = "$BASEURL/api/login";
-    var data = {"email": email, "password": password, "firebase_id":"email"};
+    var data = {"email": email, "password": password, "firebase_id":firebase_id.toString(),};
     log("login url: $url");
 
     log(data.toString());
@@ -64,16 +66,29 @@ class Api {
     return response;
   }
 
+  Future<Response> getDevices() async {
+    
+    const url = "$BASEURL/api/location";
+    Response response = await dio.get(
+      url,     
+    );
+
+    log("response is: ${response.data}");
+    return response;
+  }
+
+
 
   Future<Response> signup({
     required String password,
     required String email,
     required String middleName,
     required String firstName,
-    required String lastName,
     required String phoneNumber,
   }) async {
     const url = "$BASEURL/api/register ";
+
+    String? firebase_id =  await FirebaseMessaging.instance.getToken();
 
 
     Response response = await dio.post(
@@ -81,7 +96,7 @@ class Api {
       data: jsonEncode(<String, String>{
         "firstname": firstName,
         "middlename": middleName,
-        "lastname": lastName,
+        "firebase_id":firebase_id.toString(),
         "email": email,
         "phonenumber": phoneNumber,
         "password": password

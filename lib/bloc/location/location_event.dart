@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 part of 'location_bloc.dart';
 
 abstract class LocationEvent extends Equatable {
@@ -18,6 +20,8 @@ class UpdateLocation extends LocationEvent{
   final double origin_longitude;
   final double origin_latitude;
 
-  UpdateLocation({required this.current_latitude, required this.current_longitude,
+  const UpdateLocation({required this.current_latitude, required this.current_longitude,
     required this.max_distance, required this.origin_longitude, required this.origin_latitude});
 }
+
+class GetDevices extends LocationEvent{}
