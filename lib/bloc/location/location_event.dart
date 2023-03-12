@@ -10,3 +10,14 @@ abstract class LocationEvent extends Equatable {
 
 
 class GetLocation extends LocationEvent {}
+
+class UpdateLocation extends LocationEvent{
+  final  double current_latitude;
+  final double current_longitude;
+  final double max_distance;
+  final double origin_longitude;
+  final double origin_latitude;
+
+  UpdateLocation({required this.current_latitude, required this.current_longitude,
+    required this.max_distance, required this.origin_longitude, required this.origin_latitude});
+}

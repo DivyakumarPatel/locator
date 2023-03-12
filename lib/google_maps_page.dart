@@ -6,7 +6,7 @@ import 'dart:developer';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_locator/bloc/location_bloc.dart';
+import 'package:flutter_locator/bloc/location/location_bloc.dart';
 import "package:flutter_locator/provider/location_provider.dart";
 import "package:flutter/material.dart";
 import "package:google_maps_flutter/google_maps_flutter.dart";
@@ -48,7 +48,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
   late double geofenceRadius;
   double distance_from_origin = 10;
 
-
+  late LocationBloc _locationBloc;
 
   bool notificationsent = false;
 
@@ -72,7 +72,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: Text("Add origin coodinates"),
+                    title: Text("Add origin coordinates"),
                     content: Container(
                       height: 200,
                       child: Column(
@@ -180,7 +180,8 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
         ),
         body: BlocBuilder<LocationBloc, LocationState>(
           builder: (context, state) {
-            timer = Timer.periodic(Duration(seconds: 10),
+            _locationBloc = context.read<LocationBloc>();
+            timer = Timer.periodic(Duration(seconds: 30),
                 (Timer t) => context.read<LocationBloc>().add(GetLocation()));
             switch (state.status) {
               case LocationStatus.loading:
@@ -202,30 +203,22 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                     child: Text('Hmm, no Location! That\'s new. 😃'),
                   );
                 }
-              
-                
 
                 //check if origin has been set, if not, set it as the current location
                 if (HydratedBloc.storage.read("lat_origin") == null ||
                     HydratedBloc.storage.read("long_origin") == null ||
                     HydratedBloc.storage.read("geofence_radius") == null) {
-                  HydratedBloc.storage.write("geofence_radius", 10);
+                  HydratedBloc.storage.write("geofence_radius", 10.00);
                   HydratedBloc.storage
                       .write("lat_origin", double.parse(state.latitude));
                   HydratedBloc.storage
                       .write("long_origin", double.parse(state.longitude));
-
-
-
-                  
-
-
                 } else {
                   distance_from_origin = AppFunctions().calculateDistance(
-                    double.parse(state.latitude),
-                    double.parse(state.longitude),
-                    HydratedBloc.storage.read("lat_origin"),
-                    HydratedBloc.storage.read("long_origin"));
+                      double.parse(state.latitude),
+                      double.parse(state.longitude),
+                      HydratedBloc.storage.read("lat_origin"),
+                      HydratedBloc.storage.read("long_origin"));
                   if ((distance_from_origin >
                           HydratedBloc.storage.read("geofence_radius")) &&
                       notificationsent == false) {
@@ -249,6 +242,17 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
   }
 
   Widget _googlemap(double latitude, double longitude) {
+    double originLat = HydratedBloc.storage.read("lat_origin") ?? latitude;
+    double originLng = HydratedBloc.storage.read("long_origin") ?? longitude;
+    double maxdistance =
+        double.parse(HydratedBloc.storage.read("geofence_radius").toString());
+
+    _locationBloc.add(UpdateLocation(
+        current_latitude: latitude,
+        current_longitude: longitude,
+        max_distance: maxdistance,
+        origin_longitude: originLng,
+        origin_latitude: originLat));
     return Stack(
       children: [
         GoogleMap(
@@ -259,10 +263,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
             Marker(
                 markerId: const MarkerId("marker1"),
                 infoWindow: InfoWindow(title: "origin location"),
-                position: HydratedBloc.storage.read("lat_origin") != null
-                    ? LatLng(HydratedBloc.storage.read("lat_origin"),
-                        HydratedBloc.storage.read("long_origin"))
-                    : LatLng(latitude, longitude),
+                position: LatLng(originLat, originLng),
                 draggable: true,
                 onDragEnd: (value) {},
                 icon: BitmapDescriptor.defaultMarker),

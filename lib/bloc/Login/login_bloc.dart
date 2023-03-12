@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart';
-
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 
 import '../../functions/api.dart';
@@ -30,24 +29,24 @@ class LoginBloc extends HydratedBloc<LoginEvent, LoginState> {
         email: event.email,
         password: event.password,
       );
-      var jsonBody = json.decode(loginDetails.body);
+      log(loginDetails.data.toString());
+      var jsonBody = loginDetails.data;
       log(loginDetails.statusCode.toString());
-      log(jsonBody.toString());
+     
 
-      if (jsonBody["login"] != true) {
+      if (loginDetails.statusCode !=200) {
         emit(state.copyWith(
             status: LoginStatus.failed, message: jsonBody["message"]));
       } else {
-        String token = jsonBody['data']["token"];
-        log(token);
-        User user = User.fromJson(jsonBody['data']["landlord"]);
 
-        HydratedBloc.storage.write("token", token);
-        HydratedBloc.storage.write("firstname", user.firstname);
+        User user = User .fromJson(jsonBody['user']);
+
+        //HydratedBloc.storage.write("token", token);
+        HydratedBloc.storage.write("firstname", user.firstName);
         HydratedBloc.storage.write("email", user.email);
         HydratedBloc.storage.write("id", user.id);
-        HydratedBloc.storage.write("middlename", user.middlename);
-        HydratedBloc.storage.write("phonenumber", user.phonenumber);
+        HydratedBloc.storage.write("middlename", user.middleName);
+        HydratedBloc.storage.write("phonenumber", user.phoneNumber);
         HydratedBloc.storage.write("status", true);
 
         emit(state.copyWith(
@@ -71,7 +70,7 @@ class LoginBloc extends HydratedBloc<LoginEvent, LoginState> {
           firstName: event.firstName,
           lastName: event.lastName,
           phoneNumber: event.phoneNumber);
-      var jsonBody = json.decode(loginDetails.body);
+      var jsonBody = loginDetails.data;
       log(loginDetails.statusCode.toString());
       log(jsonBody.toString());
 
@@ -81,14 +80,13 @@ class LoginBloc extends HydratedBloc<LoginEvent, LoginState> {
       } else {
         String token = jsonBody['data']["token"];
         log(token);
-        User user = User.fromJson(jsonBody['data']["landlord"]);
+        User user = User.fromJson(jsonBody['user']);
 
-        HydratedBloc.storage.write("token", token);
-        HydratedBloc.storage.write("firstname", user.firstname);
+        HydratedBloc.storage.write("firstname", user.firstName);
         HydratedBloc.storage.write("email", user.email);
-        HydratedBloc.storage.write("id", user.id);
-        HydratedBloc.storage.write("middlename", user.middlename);
-        HydratedBloc.storage.write("phonenumber", user.phonenumber);
+       // HydratedBloc.storage.write("id", user.id);
+        HydratedBloc.storage.write("middlename", user.middleName);
+        HydratedBloc.storage.write("phonenumber", user.phoneNumber);
 
         emit(state.copyWith(
             status: LoginStatus.success,
