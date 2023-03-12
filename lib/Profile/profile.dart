@@ -1,14 +1,21 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // ignore_for_file: prefer_const_constructors
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+
 import 'package:flutter_locator/Profile/AccountDetails.dart';
 import 'package:flutter_locator/auth/Login.dart';
 import 'package:flutter_locator/functions/constants.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
-
 
 class Profile extends StatefulWidget {
-  const Profile({super.key});
+  final Timer? timer;
+  const Profile({
+    Key? key,
+    required this.timer,
+  }) : super(key: key);
 
   @override
   State<Profile> createState() => _ProfileState();
@@ -25,7 +32,6 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text("Profile"),
@@ -68,7 +74,6 @@ class _ProfileState extends State<Profile> {
             ),
             AccountDetails(title: "Name", subtitle: "$firstname $middleName"),
             AccountDetails(title: "Phone Number", subtitle: phonenumber),
-
             SizedBox(
               height: 20,
             ),
@@ -82,6 +87,10 @@ class _ProfileState extends State<Profile> {
                     title: "Log out",
                     onpress: () async {
 
+                      if(widget.timer!= null) {
+                            widget.timer!.cancel();
+                      }
+                      
                       HydratedBloc.storage.clear();
                       Navigator.pushAndRemoveUntil(
                           context,

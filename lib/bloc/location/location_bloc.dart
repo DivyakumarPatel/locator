@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:convert';
 import 'dart:developer';
 
@@ -21,14 +23,17 @@ class LocationBloc extends HydratedBloc<LocationEvent, LocationState> {
 
   void _onGetDevicesLocation(
       GetDevices event, Emitter<LocationState> emit) async {
-    emit(state.copyWith(status: LocationStatus.loading));
+   
 
     try {
       Response response = await Api().getDevices();
 
       List devices = response.data["devices"];
+      emit(state.copyWith(
+          status: LocationStatus.getDevicesSuccess, devices: devices));
+     
     } catch (e) {
-      emit(state.copyWith(status: LocationStatus.getDevicesError));
+      emit(state.copyWith(status: LocationStatus.error));
     }
   }
 

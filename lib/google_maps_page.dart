@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, non_constant_identifier_names
 
 import 'dart:async';
 import 'dart:developer';
@@ -7,6 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_locator/bloc/location/location_bloc.dart';
+import 'package:flutter_locator/models/devices/devices.dart';
 import "package:flutter_locator/provider/location_provider.dart";
 import "package:flutter/material.dart";
 import "package:google_maps_flutter/google_maps_flutter.dart";
@@ -49,16 +50,19 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
   late double geofenceRadius;
   double distance_from_origin = 10;
 
+  List<Devices> devicesList = [];
+  Set<Marker> markers = {};
+
   late LocationBloc _locationBloc;
 
   bool notificationsent = false;
 
   @override
   Widget build(BuildContext context) {
-    late double lat_origin;
-
     return BlocProvider(
-      create: (context) => LocationBloc()..add(GetLocation()),
+      create: (context) => LocationBloc()
+        ..add(GetLocation())
+        ..add(GetDevices()),
       child: Scaffold(
         appBar: AppBar(
           elevation: 0,
@@ -68,14 +72,20 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
           actions: [
             Padding(
               padding: const EdgeInsets.only(left: 10, right: 10),
-              child: IconButton(onPressed: (){
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Profile()),
-                );
-              }, icon: Icon(Icons.person), iconSize: 30,),
+              child: IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Profile(
+                              timer: timer,
+                            )),
+                  );
+                },
+                icon: Icon(Icons.person),
+                iconSize: 30,
+              ),
             )
-
           ],
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
@@ -191,63 +201,97 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
           label: Text("Add Origin"),
           icon: Icon(Icons.add),
         ),
-        body: BlocBuilder<LocationBloc, LocationState>(
+        body: BlocConsumer<LocationBloc, LocationState>(
+          listener: (context, state) {
+          
+          },
           builder: (context, state) {
-            _locationBloc = context.read<LocationBloc>();
-            timer = Timer.periodic(Duration(seconds: 30),
-                (Timer t) => context.read<LocationBloc>().add(GetLocation()));
-            switch (state.status) {
-              case LocationStatus.loading:
-                return const Center(
-                  child: CircularProgressIndicator.adaptive(),
-                );
-              case LocationStatus.error:
-                if (state.latitude == "") {
-                  return const Center(
-                    child: Text('Something went wrong'),
-                  );
-                }
-                return _googlemap(double.parse(state.latitude),
-                    double.parse(state.longitude));
+            return BlocBuilder<LocationBloc, LocationState>(
+              builder: (context, state) {
+                _locationBloc = context.read<LocationBloc>();
+                timer = Timer.periodic(
+                    Duration(seconds: 30),
+                    (Timer t) => context.read<LocationBloc>()
+                      ..add(GetDevices())
+                      ..add(GetLocation()));
+                switch (state.status) {
+                  case LocationStatus.loading:
+                    return const Center(
+                      child: CircularProgressIndicator.adaptive(),
+                    );
+                  case LocationStatus.error:
+                    if (state.latitude == "") {
+                      return const Center(
+                        child: Text('Something went wrong'),
+                      );
+                    }
+                    return _googlemap(double.parse(state.latitude),
+                        double.parse(state.longitude));
 
-              case LocationStatus.loaded:
-                if (state.latitude == "") {
-                  return const Center(
-                    child: Text('Hmm, no Location! That\'s new. 😃'),
-                  );
-                }
+                  case LocationStatus.loaded :
+                    if (state.latitude == "") {
+                      return const Center(
+                        child: Text('Hmm, no Location! That\'s new. 😃'),
+                      );
+                    }
 
-                //check if origin has been set, if not, set it as the current location
-                if (HydratedBloc.storage.read("lat_origin") == null ||
-                    HydratedBloc.storage.read("long_origin") == null ||
-                    HydratedBloc.storage.read("geofence_radius") == null) {
-                  HydratedBloc.storage.write("geofence_radius", 10.00);
-                  HydratedBloc.storage
-                      .write("lat_origin", double.parse(state.latitude));
-                  HydratedBloc.storage
-                      .write("long_origin", double.parse(state.longitude));
-                } else {
-                  distance_from_origin = AppFunctions().calculateDistance(
-                      double.parse(state.latitude),
-                      double.parse(state.longitude),
-                      HydratedBloc.storage.read("lat_origin"),
-                      HydratedBloc.storage.read("long_origin"));
-                  if ((distance_from_origin >
-                          HydratedBloc.storage.read("geofence_radius")) &&
-                      notificationsent == false) {
-                    AppFunctions().showNotification("Geofence breached!",
-                        "You are out of the location radius");
-                    notificationsent = true;
+                  if(state.status == LocationStatus.getDevicesSuccess){
+                    devicesList =
+                        state.devices.map((e) => Devices.fromJson(e)).toList();
+
+                    log("${state.devices.length} devices available");
+                    
+                    markers.clear();
+
+                    markers = devicesList
+                        .map(
+                          (e) => Marker(
+                              markerId: const MarkerId("marker1"),
+                              infoWindow: InfoWindow(
+                                  title: "${e.first_name} ${e.middle_name}"),
+                              position: LatLng(
+                                  e.current_latitude, e.current_longitude),
+                              draggable: true,
+                              onDragEnd: (value) {},
+                              icon: BitmapDescriptor.defaultMarker),
+                        )
+                        .toSet();
                   }
-                }
+                    
 
-                return _googlemap(double.parse(state.latitude),
-                    double.parse(state.longitude));
-              default:
-                return const Center(
-                  child: CircularProgressIndicator.adaptive(),
-                );
-            }
+                    //check if origin has been set, if not, set it as the current location
+                    if (HydratedBloc.storage.read("lat_origin") == null ||
+                        HydratedBloc.storage.read("long_origin") == null ||
+                        HydratedBloc.storage.read("geofence_radius") == null) {
+                      HydratedBloc.storage.write("geofence_radius", 10.00);
+                      HydratedBloc.storage
+                          .write("lat_origin", double.parse(state.latitude));
+                      HydratedBloc.storage
+                          .write("long_origin", double.parse(state.longitude));
+                    } else {
+                      distance_from_origin = AppFunctions().calculateDistance(
+                          double.parse(state.latitude),
+                          double.parse(state.longitude),
+                          HydratedBloc.storage.read("lat_origin"),
+                          HydratedBloc.storage.read("long_origin"));
+                      if ((distance_from_origin >
+                              HydratedBloc.storage.read("geofence_radius")) &&
+                          notificationsent == false) {
+                        AppFunctions().showNotification("Geofence breached!",
+                            "You are out of the location radius");
+                        notificationsent = true;
+                      }
+                    }
+
+                    return _googlemap(double.parse(state.latitude),
+                        double.parse(state.longitude));
+                  default:
+                    return const Center(
+                      child: CircularProgressIndicator.adaptive(),
+                    );
+                }
+              },
+            );
           },
         ),
       ),
@@ -259,6 +303,28 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
     double originLng = HydratedBloc.storage.read("long_origin") ?? longitude;
     double maxdistance =
         double.parse(HydratedBloc.storage.read("geofence_radius").toString());
+
+    log("markers length ${markers.length}");
+
+    markers.add(
+      Marker(
+          markerId: const MarkerId("marker1"),
+          infoWindow: InfoWindow(title: "origin location"),
+          position: LatLng(originLat, originLng),
+          draggable: true,
+          onDragEnd: (value) {},
+          icon: BitmapDescriptor.defaultMarker),
+    );
+
+    markers.add(
+      Marker(
+          markerId: const MarkerId("marker2"),
+          infoWindow: InfoWindow(snippet: "My Location", title: "my location"),
+          position: LatLng(latitude, longitude),
+          draggable: true,
+          onDragEnd: (value) {},
+          icon: BitmapDescriptor.defaultMarker),
+    );
 
     _locationBloc.add(UpdateLocation(
         current_latitude: latitude,
@@ -272,23 +338,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
           mapType: MapType.normal,
           initialCameraPosition:
               CameraPosition(target: LatLng(latitude, longitude), zoom: 15),
-          markers: {
-            Marker(
-                markerId: const MarkerId("marker1"),
-                infoWindow: InfoWindow(title: "origin location"),
-                position: LatLng(originLat, originLng),
-                draggable: true,
-                onDragEnd: (value) {},
-                icon: BitmapDescriptor.defaultMarker),
-            Marker(
-                markerId: const MarkerId("marker2"),
-                infoWindow:
-                    InfoWindow(snippet: "My Location", title: "my location"),
-                position: LatLng(latitude, longitude),
-                draggable: true,
-                onDragEnd: (value) {},
-                icon: BitmapDescriptor.defaultMarker),
-          },
+          markers: markers,
           myLocationEnabled: true,
           myLocationButtonEnabled: true,
           onMapCreated: (GoogleMapController controller) {
