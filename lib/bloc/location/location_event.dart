@@ -24,4 +24,4 @@ class UpdateLocation extends LocationEvent{
     required this.max_distance, required this.origin_longitude, required this.origin_latitude});
 }
 
-class GetDevices extends LocationEvent{}
+

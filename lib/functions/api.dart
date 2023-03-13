@@ -2,16 +2,13 @@
 
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-
 import 'constants.dart';
 
 class Api {
   final dio = Dio();
-
   Future<Response> login({
     required String email,
     required String password,

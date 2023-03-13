@@ -15,6 +15,7 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import "package:provider/provider.dart";
 
 import 'Profile/profile.dart';
+import 'bloc/Devices/devices_bloc.dart';
 import 'functions/app_functions.dart';
 import 'main.dart';
 
@@ -27,6 +28,7 @@ class GoogleMapPage extends StatefulWidget {
 
 class _GoogleMapPageState extends State<GoogleMapPage> {
   late GoogleMapController controller;
+
   get create => null;
 
   Timer? timer;
@@ -51,18 +53,22 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
   double distance_from_origin = 10;
 
   List<Devices> devicesList = [];
-  Set<Marker> markers = {};
+  List<Marker> markers = [];
 
   late LocationBloc _locationBloc;
 
   bool notificationsent = false;
 
+  String current_lat = "0.00";
+  String current_lng = "0.00";
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => LocationBloc()
-        ..add(GetLocation())
-        ..add(GetDevices()),
+      create: (context) =>
+      LocationBloc()
+        ..add(GetLocation()),
+
       child: Scaffold(
         appBar: AppBar(
           elevation: 0,
@@ -77,7 +83,8 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => Profile(
+                        builder: (context) =>
+                            Profile(
                               timer: timer,
                             )),
                   );
@@ -115,7 +122,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                                   hintStyle: TextStyle(color: Colors.black),
                                   border: OutlineInputBorder(
                                       borderRadius:
-                                          BorderRadius.circular(15.0)),
+                                      BorderRadius.circular(15.0)),
                                   fillColor: Colors.black,
                                 ),
                                 onChanged: (value) {
@@ -139,7 +146,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                                   hintStyle: TextStyle(color: Colors.black),
                                   border: OutlineInputBorder(
                                       borderRadius:
-                                          BorderRadius.circular(15.0)),
+                                      BorderRadius.circular(15.0)),
                                   fillColor: Colors.black,
                                 ),
                                 onChanged: (value) {
@@ -163,7 +170,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                                   hintStyle: TextStyle(color: Colors.black),
                                   border: OutlineInputBorder(
                                       borderRadius:
-                                          BorderRadius.circular(15.0)),
+                                      BorderRadius.circular(15.0)),
                                   fillColor: Colors.black,
                                 ),
                                 onChanged: (value) {
@@ -203,7 +210,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
         ),
         body: BlocConsumer<LocationBloc, LocationState>(
           listener: (context, state) {
-          
+
           },
           builder: (context, state) {
             return BlocBuilder<LocationBloc, LocationState>(
@@ -211,8 +218,9 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                 _locationBloc = context.read<LocationBloc>();
                 timer = Timer.periodic(
                     Duration(seconds: 30),
-                    (Timer t) => context.read<LocationBloc>()
-                      ..add(GetDevices())
+                        (Timer t) =>
+                    context.read<LocationBloc>()
+
                       ..add(GetLocation()));
                 switch (state.status) {
                   case LocationStatus.loading:
@@ -235,29 +243,9 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                       );
                     }
 
-                  if(state.status == LocationStatus.getDevicesSuccess){
-                    devicesList =
-                        state.devices.map((e) => Devices.fromJson(e)).toList();
+                    current_lng = state.longitude;
+                    current_lat = state.latitude;
 
-                    log("${state.devices.length} devices available");
-                    
-                    markers.clear();
-
-                    markers = devicesList
-                        .map(
-                          (e) => Marker(
-                              markerId: const MarkerId("marker1"),
-                              infoWindow: InfoWindow(
-                                  title: "${e.first_name} ${e.middle_name}"),
-                              position: LatLng(
-                                  e.current_latitude, e.current_longitude),
-                              draggable: true,
-                              onDragEnd: (value) {},
-                              icon: BitmapDescriptor.defaultMarker),
-                        )
-                        .toSet();
-                  }
-                    
 
                     //check if origin has been set, if not, set it as the current location
                     if (HydratedBloc.storage.read("lat_origin") == null ||
@@ -269,22 +257,28 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                       HydratedBloc.storage
                           .write("long_origin", double.parse(state.longitude));
                     } else {
+
+
                       distance_from_origin = AppFunctions().calculateDistance(
                           double.parse(state.latitude),
                           double.parse(state.longitude),
                           HydratedBloc.storage.read("lat_origin"),
                           HydratedBloc.storage.read("long_origin"));
                       if ((distance_from_origin >
-                              HydratedBloc.storage.read("geofence_radius")) &&
+                          HydratedBloc.storage.read("geofence_radius")) &&
                           notificationsent == false) {
+
                         AppFunctions().showNotification("Geofence breached!",
                             "You are out of the location radius");
                         notificationsent = true;
                       }
                     }
 
-                    return _googlemap(double.parse(state.latitude),
-                        double.parse(state.longitude));
+
+                    return _googlemap(double.parse(current_lat),
+                        double.parse(current_lng));
+
+
                   default:
                     return const Center(
                       child: CircularProgressIndicator.adaptive(),
@@ -299,17 +293,20 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
   }
 
   Widget _googlemap(double latitude, double longitude) {
+
     double originLat = HydratedBloc.storage.read("lat_origin") ?? latitude;
     double originLng = HydratedBloc.storage.read("long_origin") ?? longitude;
     double maxdistance =
-        double.parse(HydratedBloc.storage.read("geofence_radius").toString());
+    double.parse(HydratedBloc.storage.read("geofence_radius").toString());
 
-    log("markers length ${markers.length}");
+
+
+
 
     markers.add(
       Marker(
           markerId: const MarkerId("marker1"),
-          infoWindow: InfoWindow(title: "origin location"),
+          infoWindow: InfoWindow(title: "my origin location"),
           position: LatLng(originLat, originLng),
           draggable: true,
           onDragEnd: (value) {},
@@ -326,48 +323,84 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
           icon: BitmapDescriptor.defaultMarker),
     );
 
+
+
     _locationBloc.add(UpdateLocation(
         current_latitude: latitude,
         current_longitude: longitude,
         max_distance: maxdistance,
         origin_longitude: originLng,
         origin_latitude: originLat));
-    return Stack(
-      children: [
-        GoogleMap(
-          mapType: MapType.normal,
-          initialCameraPosition:
-              CameraPosition(target: LatLng(latitude, longitude), zoom: 15),
-          markers: markers,
-          myLocationEnabled: true,
-          myLocationButtonEnabled: true,
-          onMapCreated: (GoogleMapController controller) {
-            controller = controller;
-          },
-        ),
-        Container(
-          height: 60,
-          width: MediaQuery.of(context).size.width,
-          color: Colors.redAccent,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Set radius: ${HydratedBloc.storage.read("geofence_radius").toString()} Kms",
-                  style: TextStyle(color: Colors.white),
+    return BlocProvider(
+      create: (context) => DevicesBloc(),
+      child: BlocBuilder<DevicesBloc, DevicesState>(
+        builder: (context, state) {
+
+            devicesList =
+                state.Devices.map((e) => Devices.fromJson(e)).toList();
+            for (Devices device in devicesList) {
+              markers.add(
+                Marker(
+                    markerId: MarkerId(device.first_name.toString()),
+                    infoWindow: InfoWindow(
+                        title: "${device.first_name} ${device.middle_name}",
+                        snippet: "${device.email} "
+                    ),
+                    position: LatLng(device.current_latitude, device.current_longitude),
+                    draggable: true,
+                    onDragEnd: (value) {},
+                    icon: BitmapDescriptor.defaultMarker),
+              );
+
+            }
+        context.read<DevicesBloc>().add(GetDevices());
+
+          return Stack(
+            children: [
+              GoogleMap(
+                mapType: MapType.normal,
+                initialCameraPosition:
+                CameraPosition(target: LatLng(latitude, longitude), zoom: 15),
+                markers:
+                Set<Marker>.of(markers),
+
+                myLocationEnabled: true,
+                myLocationButtonEnabled: true,
+                onMapCreated: (GoogleMapController controller) {
+                  controller = controller;
+                },
+              ),
+              Container(
+                height: 60,
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width,
+                color: Colors.redAccent,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 20.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Set radius: ${HydratedBloc.storage.read(
+                            "geofence_radius").toString()} Kms",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      Text(
+                        "Your distance from the origin point: ${distance_from_origin
+                            .round().toString()}  Kms",
+                        style: TextStyle(color: Colors.white),
+                      )
+                    ],
+                  ),
                 ),
-                Text(
-                  "Your distance from the origin point: ${distance_from_origin.round().toString()}  Kms",
-                  style: TextStyle(color: Colors.white),
-                )
-              ],
-            ),
-          ),
-        )
-      ],
+              )
+            ],
+          );
+        },
+      ),
     );
   }
 }

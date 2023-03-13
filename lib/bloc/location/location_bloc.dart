@@ -18,24 +18,10 @@ class LocationBloc extends HydratedBloc<LocationEvent, LocationState> {
   LocationBloc() : super(LocationState()) {
     on<GetLocation>(_onGetLocation);
     on<UpdateLocation>(_onUpdateLocation);
-    on<GetDevices>(_onGetDevicesLocation);
+
   }
 
-  void _onGetDevicesLocation(
-      GetDevices event, Emitter<LocationState> emit) async {
-   
 
-    try {
-      Response response = await Api().getDevices();
-
-      List devices = response.data["devices"];
-      emit(state.copyWith(
-          status: LocationStatus.getDevicesSuccess, devices: devices));
-     
-    } catch (e) {
-      emit(state.copyWith(status: LocationStatus.error));
-    }
-  }
 
   void _onUpdateLocation(
       UpdateLocation event, Emitter<LocationState> emit) async {
